@@ -1,14 +1,18 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import React from "react";
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from "@react-navigation/native";
 import { Home, Resturant, OrderDelivery } from "./screens";
 import Tabs from "./navigation/tabs";
+import { NativeBaseProvider, Text } from 'native-base';
 
 const Stack = createStackNavigator();
 
 const App = () => {
+
+
   return (
+    <NativeBaseProvider>
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
@@ -23,7 +27,9 @@ const App = () => {
 
       </Stack.Navigator>
     </NavigationContainer>
+    </NativeBaseProvider>
   );
 };
 
 export default App;
+
