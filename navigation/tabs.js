@@ -102,7 +102,7 @@ const Tabs = () => {
     return (
         <Tab.Navigator
             screenOptions={{
-                headerShown: false,
+                headerShown: false, 
                 style: {
                     position: 'absolute',
                     left: 0,
