@@ -24,9 +24,65 @@ const Resturant = ({ route, navigation }) => {
     setCurrentLocation(currentLocation);
   }, []);
 
+  function editOrder(action, menuId, price) {
+    let orderList = orderItems.slice()
+    let item = orderList.filter(a => a.menuId == menuId)
+
+    if (action == "+") {
+        if (item.length > 0) {
+            let newQty = item[0].qty + 1
+            item[0].qty = newQty
+            item[0].total = item[0].qty * price
+        } else {
+            const newItem = {
+                menuId: menuId,
+                qty: 1,
+                price: price,
+                total: price
+            }
+            orderList.push(newItem)
+        }
+
+        setOrderItems(orderList)
+    } else {
+        if (item.length > 0) {
+            if (item[0]?.qty > 0) {
+                let newQty = item[0].qty - 1
+                item[0].qty = newQty
+                item[0].total = newQty * price
+            }
+        }
+
+        setOrderItems(orderList)
+    }
+}
+
+function getOrderQty(menuId) {
+    let orderItem = orderItems.filter(a => a.menuId == menuId)
+
+    if (orderItem.length > 0) {
+        return orderItem[0].qty
+    }
+
+    return 0
+}
+
+
+  function getBasketItemCount() {
+    let itemCount = orderItems.reduce((a, b) => a + (b.qty || 0), 0)
+
+    return itemCount
+}
+
+function sumOrder() {
+    let total = orderItems.reduce((a, b) => a + (b.total || 0), 0)
+
+    return total.toFixed(2)
+}
+
   const renderHeader = () => {
     return (
-      <View style={{ flexDirection: "row", height: 50 }}>
+      <View style={{ flexDirection: "row"}}>
         <TouchableOpacity
           style={{
             width: 50,
@@ -95,141 +151,121 @@ const Resturant = ({ route, navigation }) => {
   const renderFoodInfo = () => {
     return (
       <Animated.ScrollView
-        horizontal
-        pagingEnabled
-        scrollEventThrottle={16}
-        snapToAlignment="center"
-        showsHorizontalScrollIndicator={false}
-        onScroll={Animated.event([
-          {nativeEvent: { contentOffset: { x: scrollX}}}
-        ], { useNativeDriver: false})}
-      >
-        {restaurant?.menu.map((item, index) => (
-          <View key={`menu-${index}`} style={{ alignItems: "center" }}>
-            <View style={{ height: SIZES.height * 0.35 }}>
-              {/* FOod Image */}
-              <Image
-                source={item.photo}
-                resizeMode="cover"
-                style={{
-                  width: SIZES.width,
-                  height: "100%",
-                }}
-              />
-
-              {/* Quantity  Left*/}
-
+      horizontal
+      pagingEnabled
+      scrollEventThrottle={16}
+      snapToAlignment="center"
+      showsHorizontalScrollIndicator={false}
+      onScroll={Animated.event([
+          { nativeEvent: { contentOffset: { x: scrollX } } }
+      ], { useNativeDriver: false })}
+  >
+      {
+          restaurant?.menu.map((item, index) => (
               <View
-                style={{
-                  position: "absolute",
-                  justifyContent: "center",
-                  width: SIZES.width,
-                  height: 50,
-                  bottom: -20,
-                  flexDirection: "row",
-                }}
+                  key={`menu-${index}`}
+                  style={{ alignItems: 'center' }}
               >
-                <TouchableOpacity
-                  style={{
-                    width: 50,
-                    backgroundColor: COLORS.white,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderTopLeftRadius: 25,
-                    borderBottomLeftRadius: 25,
-                  }}
-                >
-                  <Text
-                    style={{
-                      ...FONTS.body1,
-                    }}
+                  <View style={{ height: SIZES.height * 0.35 }}>
+                      {/* Food Image */}
+                      <Image
+                          source={item.photo}
+                          resizeMode="cover"
+                          style={{
+                              width: SIZES.width,
+                              height: "100%"
+                          }}
+                      />
+
+                      {/* Quantity */}
+                      <View
+                          style={{
+                              position: 'absolute',
+                              bottom: - 20,
+                              width: SIZES.width,
+                              height: 50,
+                              justifyContent: 'center',
+                              flexDirection: 'row'
+                          }}
+                      >
+                          <TouchableOpacity
+                              style={{
+                                  width: 50,
+                                  backgroundColor: COLORS.white,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  borderTopLeftRadius: 25,
+                                  borderBottomLeftRadius: 25
+                              }}
+                              onPress={() => editOrder("-", item.menuId, item.price)}
+                          >
+                              <Text style={{ ...FONTS.body1 }}>-</Text>
+                          </TouchableOpacity>
+
+                          <View
+                              style={{
+                                  width: 50,
+                                  backgroundColor: COLORS.white,
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                              }}
+                          >
+                              <Text style={{ ...FONTS.h2 }}>{getOrderQty(item.menuId)}</Text>
+                          </View>
+
+                          <TouchableOpacity
+                              style={{
+                                  width: 50,
+                                  backgroundColor: COLORS.white,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  borderTopRightRadius: 25,
+                                  borderBottomRightRadius: 25
+                              }}
+                              onPress={() => editOrder("+", item.menuId, item.price)}
+                          >
+                              <Text style={{ ...FONTS.body1 }}>+</Text>
+                          </TouchableOpacity>
+                      </View>
+                  </View>
+
+                  {/* Name & Description */}
+                  <View
+                      style={{
+                          width: SIZES.width,
+                          alignItems: 'center',
+                          marginTop: 15,
+                          paddingHorizontal: SIZES.padding * 2
+                      }}
                   >
-                    -
-                  </Text>
-                </TouchableOpacity>
-                {/* Quantity Itself */}
-                <View
-                  style={{
-                    width: 50,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: COLORS.white,
-                  }}
-                >
-                  <Text
-                    style={{
-                      ...FONTS.h2,
-                    }}
+                      <Text style={{ marginVertical: 10, textAlign: 'center', ...FONTS.h2 }}>{item.name} - {item.price.toFixed(2)}</Text>
+                      <Text style={{ ...FONTS.body3 }}>{item.description}</Text>
+                  </View>
+
+                  {/* Calories */}
+                  <View
+                      style={{
+                          flexDirection: 'row',
+                          marginTop: 10
+                      }}
                   >
-                    5
-                  </Text>
-                </View>
-                {/* Quantity Right */}
-                <TouchableOpacity
-                  style={{
-                    width: 50,
-                    backgroundColor: COLORS.white,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderTopRightRadius: 25,
-                    borderBottomRightRadius: 25,
-                  }}
-                >
-                  <Text
-                    style={{
-                      ...FONTS.body1,
-                    }}
-                  >
-                    +
-                  </Text>
-                </TouchableOpacity>
+                      <Image
+                          source={icons.fire}
+                          style={{
+                              width: 20,
+                              height: 20,
+                              marginRight: 10
+                          }}
+                      />
+
+                      <Text style={{
+                          ...FONTS.body3, color: COLORS.darygray
+                      }}>{item.calories.toFixed(2)} cal</Text>
+                  </View>
               </View>
-            </View>
-
-            {/* Name And Description */}
-            <View
-              style={{
-                width: SIZES.width,
-                alignItems: "center",
-                marginTop: 15,
-                paddingHorizontal: SIZES.padding * 2,
-              }}
-            >
-              <Text
-                style={{
-                  marginVertical: 10,
-                  textAlign: "10",
-                  ...FONTS.h2,
-                }}
-              >
-                {item.name} - {item.price.toFixed(2)}
-              </Text>
-              <Text style={{...FONTS.body3}}>{item.description}</Text>
-            </View>
-
-            {/* Calories */}
-
-            <View
-            style={{
-                flexDirection: 'row',
-                marginTop: '10'
-            }}
-            >
-                <Image 
-                source={icons.fire}
-                style={{
-                    width: 20,
-                    height: 20,
-                    marginRight: 10, 
-                }}
-                />
-                <Text style={{
-                    ...FONTS.body3, color: COLORS.darkgray
-                }}>{item.calories.toFixed(2)} cal</Text>
-            </View>
-          </View>
-        ))}
-      </Animated.ScrollView>
+          ))
+      }
+  </Animated.ScrollView>
     );
   };
 
@@ -305,8 +341,8 @@ const Resturant = ({ route, navigation }) => {
                       borderBottomWidth: 1
                   }}
               >
-                  {/* <Text style={{ ...FONTS.h3 }}>{getBasketItemCount()} items in Cart</Text>
-                  <Text style={{ ...FONTS.h3 }}>${sumOrder()}</Text> */}
+                  <Text style={{ ...FONTS.h3 }}>{getBasketItemCount()} items in Cart</Text>
+                   <Text style={{ ...FONTS.h3 }}>${sumOrder()}</Text> 
               </View>
 
               <View
