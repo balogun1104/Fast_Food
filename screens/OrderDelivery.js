@@ -3,11 +3,19 @@ import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const OrderDelivery = () => {
+
+  const renderMap = () => {
+    return (
+      <View>
+        <Text>OrderDelivery</Text>
+      </View>
+    )
+  }
   return (
    <SafeAreaView>
-    <View>
-      <Text>THisis </Text>
-    </View>
+    {
+      renderMap()
+    }
    </SafeAreaView>
   )
 }
